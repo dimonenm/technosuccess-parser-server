@@ -13,7 +13,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = app.get(ConfigService);
-  const redis = new IORedis(config.getOrThrow('REDIS_URI'));
+  // const redis = new IORedis(config.getOrThrow('REDIS_URI'));
 
   app.use(coockieParser(config.getOrThrow<string>('COOCKIES_SECRET')));
 
@@ -32,10 +32,10 @@ async function bootstrap() {
         secure: parseBoolean(config.getOrThrow<string>('SESSION_SECURE')),
         sameSite: 'lax',
       },
-      store: new RedisStore({
-        client: redis,
-        prefix: config.getOrThrow<string>('SESSION_FOLDER'),
-      }),
+      // store: new RedisStore({
+      //   client: redis,
+      //   prefix: config.getOrThrow<string>('SESSION_FOLDER'),
+      // }),
     }),
   );
 
@@ -46,5 +46,6 @@ async function bootstrap() {
   });
 
   await app.listen(config.getOrThrow<number>('APPLICATION_PORT'));
+  console.log('start on ', config.getOrThrow<number>('APPLICATION_PORT'));
 }
 bootstrap();
