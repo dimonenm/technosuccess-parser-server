@@ -51,8 +51,10 @@ export class AuthService {
 				if(err){
 					return reject(new InternalServerErrorException('Не удалось завершить сессию. Возможно, возникла проблема с сервером или сессия уже завершена.'))
 				}
+				console.log('in ',req.cookies)
 				res.clearCookie(this.configService.getOrThrow<string>('SESSION_NAME'))
 			})
+			console.log('out ',req.cookies)
 			resolve()
 		})
 	}
