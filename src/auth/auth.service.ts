@@ -29,16 +29,16 @@ export class AuthService {
 
 		return this.saveSession(req, newUser)
 	}
-	public async login(req: Request, dto: LoginDto) { 
+	public async login(req: Request, dto: LoginDto) {
 		const user = await this.userService.findeByEmail(dto.email)
 
-		if(!user || !user.password){
+		if (!user || !user.password) {
 			throw new NotFoundException("Пользователь не найден. Проверте введеные данные.")
 		}
 
 		const isValidPassword = await verify(user.password, dto.password)
 
-		if(!isValidPassword){
+		if (!isValidPassword) {
 			throw new UnauthorizedException("Неверный пароль")
 		}
 
@@ -48,13 +48,11 @@ export class AuthService {
 	public async logout(req: Request, res: Response): Promise<void> {
 		return new Promise((resolve, reject) => {
 			req.session.destroy(err => {
-				if(err){
+				if (err) {
 					return reject(new InternalServerErrorException('Не удалось завершить сессию. Возможно, возникла проблема с сервером или сессия уже завершена.'))
 				}
-				console.log('in ',req.cookies)
 				res.clearCookie(this.configService.getOrThrow<string>('SESSION_NAME'))
 			})
-			console.log('out ',req.cookies)
 			resolve()
 		})
 	}
@@ -68,7 +66,7 @@ export class AuthService {
 					return reject(
 						new InternalServerErrorException('Не удалось сохранить сессию. Проверте, правильно ли настроины параметры сессии'))
 				}
-				resolve({user})
+				resolve({ user })
 			})
 		})
 
