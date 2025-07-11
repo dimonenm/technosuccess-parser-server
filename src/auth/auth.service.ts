@@ -2,13 +2,14 @@ import { ConflictException, Injectable, InternalServerErrorException, NotFoundEx
 import { RegisterDto } from './dto/register.dto'
 import { UserService } from 'src/user/user.service'
 import { AuthMetod, User } from 'prisma/__generated__'
-import { Request } from 'express'
+import { Request, Response } from 'express'
 import { LoginDto } from './dto/login.dto'
 import { verify } from 'argon2'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class AuthService {
-	public constructor(private readonly userService: UserService) { }
+	public constructor(private readonly userService: UserService, private readonly configService: ConfigService) { }
 
 	public async register(req: Request, dto: RegisterDto) {
 		const isExist = await this.userService.findeByEmail(dto.email)
@@ -44,7 +45,17 @@ export class AuthService {
 		return this.saveSession(req, user)
 	}
 
-	public async logout() { }
+	public async logout(req: Request, res: Response): Promise<void> {
+		return new Promise((resolve, reject) => {
+			req.session.destroy(err => {
+				if(err){
+					return reject(new InternalServerErrorException('Не удалось завершить сессию. Возможно, возникла проблема с сервером или сессия уже завершена.'))
+				}
+				res.clearCookie(this.configService.getOrThrow<string>('SESSION_NAME'))
+			})
+			resolve()
+		})
+	}
 
 	private async saveSession(req: Request, user: User) {
 		return new Promise((resolve, reject) => {
